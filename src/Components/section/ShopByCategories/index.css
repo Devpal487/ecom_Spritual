@@ -1,0 +1,31 @@
+.card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* background-color: #fff;  */
+    color: #000; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease-in-out; 
+    text-align: center;
+    padding: 10px; 
+}
+.relative:hover .card-overlay {
+    opacity: 1; 
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ensure that the gap between the cards is visible */
+.slick-slide {
+    padding: 0 15px;  /* Adjust this to control the gap between the cards */
+  }
+  
