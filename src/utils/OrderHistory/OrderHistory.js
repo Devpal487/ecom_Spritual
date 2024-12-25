@@ -22,6 +22,7 @@ const OrderHistory = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [order, setOrder] = useState(null);
   const [isReportLoading, setIsReportLoading ] = useState(false);
+  const [isInvoiceVisible, setIsInvoiceVisible] = useState(false);
 
 
   useEffect(() => {
@@ -43,7 +44,7 @@ const OrderHistory = () => {
     if (order.orderId) {
       const response = await GetOrderItem(order.orderId, userId);
       if (response.data.length > 0) {
-        setSelectedOrder(response.data);
+        setSelectedOrder(selectedOrder ? null : response.data);
       } else {
         // alert("Network issues");
       }
@@ -105,15 +106,20 @@ const OrderHistory = () => {
   }
 
   const handleInvoiceDownload = async (order) => {
-    setIsReportLoading(true);
-    try {
-    const response =   await GetOrderItemFile(order?.orderId , userId);
-    setOrder(response);
-    window.open(`data:application/pdf; base64,${response}`)
-    }catch (error) {
-    } finally {
-      setIsReportLoading(false);
-      // setOrder(null);
+    if (isInvoiceVisible) {
+      setIsInvoiceVisible(false);
+      setOrder(null);
+    } else {
+      setIsReportLoading(true);
+      try {
+        const response = await GetOrderItemFile(order?.orderId, userId);
+        setOrder(response);
+        setIsInvoiceVisible(true);
+      } catch (error) {
+        // Handle error
+      } finally {
+        setIsReportLoading(false);
+      }
     }
   };
 
@@ -121,24 +127,24 @@ const OrderHistory = () => {
   return (
     <div className="container mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-6">Order History</h1>
-      <div className="overflow-x-auto max-h-[470px] relative">
-      <table className=" shadow-md rounded-lg border bg-white overflow-hidden w-full my-5">
+      <div className="overflow-x-auto max-h-[470px] relative border-2 rounded-md">
+      <table className=" shadow-md rounded-lg border-2 bg-white overflow-hidden w-full ">
         <thead className="sticky top-0 bg-white z-10">
           <tr>
-            <th className="py-3 px-4 text-center" style={{ width: '5%' }}>Order ID</th>
+            <th className="py-3 px-4 text-center" style={{ width: '10%' }}>Sr. No.</th>
             <th className="py-3 px-4 text-center" style={{ width: '10%' }}>Date</th>
             <th className="py-3 px-4 text-center" style={{ width: '10%' }}>Total</th>
-            <th className="py-3 px-4 text-center" style={{ width: '15%' }}>Payment Mode</th>
-            <th className="py-3 px-4 text-center" style={{ width: '15%' }}>Status</th>
-            <th className="py-3 px-4 text-center" style={{ width: '30%' }}>Remark</th>
-            <th className="py-3 px-4 text-center" style={{ width: '15%' }}>Action</th>
+            <th className="py-3 px-4 text-center" style={{ width: '12%' }}>Payment Mode</th>
+            <th className="py-3 px-4 text-center" style={{ width: '20%' }}>Status</th>
+            <th className="py-3 px-4 text-center" style={{ width: '25%' }}>Remark</th>
+            <th className="py-3 px-4 text-center" style={{ width: '13%' }}>Action</th>
           </tr>
         </thead>
         <tbody>
           {orderData.map((order, index) => (
             <tr 
               key={order.orderId} 
-              className="hover:bg-gray-100 cursor-pointer" 
+              className="hover:bg-gray-100" 
             >
               <td className="py-3 px-4 border-b border-gray-300 border-[1px] text-center" >{index + 1}</td>
               <td className="py-3 px-4 border-b border-gray-300 border-[1px] text-center  text-blue-600 underline cursor-pointer" onClick={() => handleOrderClick(order)}>{dayjs(order.paymentDate).format('DD-MMM-YYYY')}</td>
@@ -146,7 +152,7 @@ const OrderHistory = () => {
               <td className="py-3 px-4 border-b border-gray-300 border-[1px] text-right"> {order.paymentModeName === 'COD' ? "Cash on Delivery" : 'Online Banking' }</td>
               <td className="py-3 px-4 border-b border-gray-300 border-[1px] text-center">{order.status || "--"}</td>
               <td className="py-3 px-4 border-b border-gray-300 border-[1px] text-center">{order.remark || "--"}</td>
-              <td className="py-3 px-4 border-b border-gray-300 border-[1px] text-center grid grid-cols-2 items-center gap-5">
+              <td className="py-3 px-4 border-b border-gray-300 border-[1px] text-center grid grid-cols-2 cursor-pointer items-center gap-5">
               {order.orderStatus === 6 ? (
                 <p className="bg-red-500 text-white rounded" onClick={(event) => {event.stopPropagation(); handleStatusUpdate(order, 'return');}}>Return</p>
               ) : order.orderStatus === 5 ? (
@@ -178,23 +184,23 @@ const OrderHistory = () => {
       )}
 
      {isReportLoading ? (
-                    <div>
-                      <Loading />
-                    </div>
-                  ) : order ? (
-                    <div className='my-5'>
-                    <embed
-                      src={`data:application/pdf; base64,${order}`}
-                      type="application/pdf"
-                      style={{
-                        width: "100%",
-                        height: "75vh",
-                      }}
-                    />
-                    </div>
-                  ) : (
-                    <h3></h3>
-                  )}
+      <div className='z-10 fixed inset-0 flex items-center justify-center bg-white bg-opacity-50'>
+        <Loading />
+      </div>
+    ) : isInvoiceVisible && order ? (
+      <div className='my-5'>
+        <embed
+          src={`data:application/pdf; base64,${order}`}
+          type="application/pdf"
+          style={{
+            width: "100%",
+            height: "75vh",
+          }}
+        />
+      </div>
+    ) : (
+      <h3></h3>
+    )}
 
       <ItemDetailsModal item={selectedItem} onClose={closeModal} />
 

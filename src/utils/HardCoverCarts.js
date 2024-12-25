@@ -131,7 +131,7 @@ const HardCoverCarts = () => {
           <Loading />
         </div>
       ) : (
-        <div className="min-h-screen text-gray-800 relative">
+        <div className="text-gray-800 relative">
             {cart.length > 0 && (
           <div className="flex items-center justify-between fixed w-5/6 top-20 left-28 px-5 bg-white border rounded-xl shadow-lg z-10">
               <>
@@ -150,15 +150,13 @@ const HardCoverCarts = () => {
             )}
 
           {cart.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 absolute top-16 p-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-5 mt-20 mb-20">
               {cart.map(item => (
-                <div key={item.id} className="p-4 shadow rounded-lg flex flex-col items-center w-44">
+                <div key={item.id} className="p-4 shadow  border-2 rounded-lg flex flex-col items-center w-full">
                 <div>
                   <input 
                     type='checkbox' 
-                    // checked={selectedItems.includes(item.id)} 
                     onChange={() => handleCheckboxChange(item)} 
-                    //className="mr-4" 
                   />
                   </div>
                   <img 
@@ -180,12 +178,7 @@ const HardCoverCarts = () => {
                       >
                         Remove
                       </button>
-                      {/* <button
-                        //onClick={() => handleNavigationDetails(item)}
-                        className="bg-blue-500 text-white px-2 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                      >
-                        View Details
-                      </button> */}
+                      
                     </div>
                   </div>
                 </div>
